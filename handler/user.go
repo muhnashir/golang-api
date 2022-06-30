@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bwastartup/auth"
 	"bwastartup/helper"
 	"bwastartup/user"
 	"fmt"
@@ -11,15 +12,16 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
 
-	//tangkap dari form
+	// tangkap dari form
 	var input user.RegisterUserInput
 
 	err := c.ShouldBindJSON(&input)
@@ -40,7 +42,13 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(newUser, "huYHGsIIHjhhbDHDJJDJD")
+	token, err := h.authService.GenerateToken(newUser.ID)
+	if err != nil {
+		response := helper.APIResponse("Register accout failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	formatter := user.FormatUser(newUser, token)
 
 	response := helper.APIResponse("Account has ben registered", http.StatusOK, "success", formatter)
 
@@ -75,7 +83,14 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(loggedinUser, "huYHGsIIHjhhbDHDJJDJD")
+	token, err := h.authService.GenerateToken(loggedinUser.ID)
+	if err != nil {
+		response := helper.APIResponse("Login failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := user.FormatUser(loggedinUser, token)
 
 	response := helper.APIResponse("Successfully login", http.StatusOK, "success", formatter)
 
@@ -140,8 +155,10 @@ func (h *userHandler) UploadAvatar(c *gin.Context){
 		c.JSON(http.StatusBadRequest, response)
 		return	
 	}
-	fmt.Println("cek")
-	path := "images/" + file.Filename
+	// path := "images/" + file.Filename
+	userId := 9
+
+	path := fmt.Sprintf("images/%d-%s", userId, file.Filename)
 	err =c.SaveUploadedFile(file, path)
 	fmt.Println(err)
 	if err != nil{
@@ -152,7 +169,6 @@ func (h *userHandler) UploadAvatar(c *gin.Context){
 		return
 	}
 
-	userId := 9
 	_, err = h.userService.SaveAvatar(userId, path)
 	if err != nil{
 		data := gin.H{"is_uploaded" : false,}

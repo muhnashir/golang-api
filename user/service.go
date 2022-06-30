@@ -59,7 +59,6 @@ func (s *service) Login(input LoginInput) (User, error) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
-		fmt.Println("cocok")
 		return user, err
 	}
 	return user, nil
