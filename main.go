@@ -21,6 +21,7 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
+	userService.SaveAvatar(9, "images/foto.png")
 
 	// input := user.LoginInput{
 	// 	Email:    "nashir@transisi.id",
@@ -51,6 +52,7 @@ func main() {
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
+	api.POST("/avatar", userHandler.UploadAvatar)
 
 	router.Run()
 }
