@@ -30,17 +30,10 @@ func main() {
 	campaignRepository := campaign.NewRepository(db)
 	userService := user.NewService(userRepository)
 	authService :=auth.NewService()
-
-	campaigns, err := campaignRepository.FindByUserId(9)
-	fmt.Println("jumlah ", len(campaigns))
-
-	for _, campaign := range campaigns{
-		fmt.Println(campaign.Name)
-		if len(campaign.CampaignImages) > 0{
-
-			fmt.Println(campaign.CampaignImages[0])
-		}
-	}
+	campaignService :=campaign.NewService(campaignRepository)
+	
+	campaigns, _ := campaignService.FindCampaigns(1)
+	fmt.Println("jumlah :", len(campaigns))
 
 	// token, err := authService.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5fQ.0qlEgibgOJ9dFtv1vHbjZuJ813y-wdpoN-7z8UkpZME")
 	// if err !=nil{
