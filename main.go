@@ -6,7 +6,6 @@ import (
 	"bwastartup/handler"
 	"bwastartup/helper"
 	"bwastartup/user"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -32,8 +31,6 @@ func main() {
 	authService :=auth.NewService()
 	campaignService :=campaign.NewService(campaignRepository)
 	
-	campaigns, _ := campaignService.FindCampaigns(1)
-	fmt.Println("jumlah :", len(campaigns))
 
 	// token, err := authService.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5fQ.0qlEgibgOJ9dFtv1vHbjZuJ813y-wdpoN-7z8UkpZME")
 	// if err !=nil{
@@ -72,13 +69,16 @@ func main() {
 	// }
 
 	userHandler := handler.NewUserHandler(userService,authService)
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 
 	router := gin.Default()
+	router.Static("/images","./images")
 	api := router.Group("/api/v1")
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatar",authMiddleware(authService, userService), userHandler.UploadAvatar)
+	api.GET("campaigns",campaignHandler.GetCampaigns )
 
 	router.Run()
 }
