@@ -30,3 +30,13 @@ type CampaignImage struct{
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type CreateCampaignInput struct{
+	Name string	`json:"name"`
+	ShortDescription string	`json:"short_description"`
+	Description string	`json:"description"`
+	Perks string	`json:"perks"`
+	GoalAmount int	`json:"goal_amount"`
+	Slug string	`json:"slug"`
+	User user.User	`json:"user"`
+}
