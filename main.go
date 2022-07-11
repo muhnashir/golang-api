@@ -32,42 +32,6 @@ func main() {
 	campaignService :=campaign.NewService(campaignRepository)
 	
 
-	// token, err := authService.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5fQ.0qlEgibgOJ9dFtv1vHbjZuJ813y-wdpoN-7z8UkpZME")
-	// if err !=nil{
-	// 	fmt.Println("error")
-	// 	fmt.Println("error")
-	// }
-
-	// if token.Valid{
-	// 	fmt.Println("valid")
-	// }else{
-	// 	fmt.Println("Invalidddd")
-	// }
-
-	
-	// userService.SaveAvatar(9, "images/foto.png")
-
-	// input := user.LoginInput{
-	// 	Email:    "nashir@transisi.id",
-	// 	Password: "12345678",
-	// }
-	// user, err := userService.Login(input)
-	// if err != nil {
-	// 	fmt.Println("terjadi kesalahan")
-	// 	fmt.Println(err.Error())
-	// }
-	// fmt.Printf(user.Name)
-	// fmt.Printf(user.Email)
-	// userByEmail, err := userRepository.FindByEmail("lutfi@gmail.com")
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-	// if userByEmail.ID == 0 {
-	// 	fmt.Println("tidak ada")
-	// } else {
-	// 	fmt.Println(userByEmail.ID)
-	// }
-
 	userHandler := handler.NewUserHandler(userService,authService)
 	campaignHandler := handler.NewCampaignHandler(campaignService)
 
@@ -79,6 +43,7 @@ func main() {
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatar",authMiddleware(authService, userService), userHandler.UploadAvatar)
 	api.GET("campaigns",campaignHandler.GetCampaigns )
+	api.GET("campaigns/:id",campaignHandler.GetCampaign )
 
 	router.Run()
 }
