@@ -8,6 +8,8 @@ type Repository interface{
 	FindByID(ID int)(Campaign, error)
 	Save(campaign Campaign)(Campaign, error)
 	Update(campaign Campaign)(Campaign, error)
+	CreteImage(campaign CampaignImage)(CampaignImage, error)
+	MarkAllImageAsNonPrimary(CampaignID int)(bool, error)
 }
 
 
@@ -65,4 +67,20 @@ func (r *repository)Update(campaign Campaign)(Campaign, error){
 		return campaign , err
 	}
 	return campaign, nil
+}
+
+func (r *repository) CreteImage(campaignImage CampaignImage)(CampaignImage, error){
+	err:= r.db.Save(&campaignImage).Error
+	if err !=nil{
+		return campaignImage , err
+	}
+	return campaignImage, nil
+}
+
+func (r* repository) MarkAllImageAsNonPrimary(CampaignID int)(bool, error){
+	err:= r.db.Model(&CampaignImage{}).Where("campaign_id = ?", CampaignID).Update("is_primary", false).Error
+	if err !=nil{
+		return false , err
+	}
+	return true, nil
 }

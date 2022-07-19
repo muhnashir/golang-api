@@ -7,50 +7,50 @@ import (
 	"github.com/gosimple/slug"
 )
 
-type Service interface{
-	GetCampaigns(userID int)([]Campaign, error)
-	GetCampaignByID(input GetCampaignDetailInput)(Campaign, error)
-	CreateCampiagn(input CreateCampaignInput)(Campaign, error)
-	UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput)(Campaign, error)
+type Service interface {
+	GetCampaigns(userID int) ([]Campaign, error)
+	GetCampaignByID(input GetCampaignDetailInput) (Campaign, error)
+	CreateCampiagn(input CreateCampaignInput) (Campaign, error)
+	UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error)
+	SaveCampaignImage(input CreateCampaignImageInput, fileLocation string) (CampaignImage, error)
 }
 
-type service struct{
+type service struct {
 	repository Repository
 }
 
-func NewService(repository Repository)(*service){
+func NewService(repository Repository) *service {
 	return &service{repository}
 }
 
-func (s *service) GetCampaigns(userID int)([]Campaign, error){
-	if userID != 0{
-		campaigns,err:= s.repository.FindByUserId(userID)
-		if err !=nil{
+func (s *service) GetCampaigns(userID int) ([]Campaign, error) {
+	if userID != 0 {
+		campaigns, err := s.repository.FindByUserId(userID)
+		if err != nil {
 			return campaigns, err
 		}
 
 		return campaigns, nil
 	}
-	
 
-	campaigns,err:= s.repository.FindAll()
-		if err !=nil{
-			return campaigns, err
-		}
+	campaigns, err := s.repository.FindAll()
+	if err != nil {
+		return campaigns, err
+	}
 
-	return campaigns, nil	
+	return campaigns, nil
 }
 
-func (s *service) GetCampaignByID(input GetCampaignDetailInput)(Campaign, error){
+func (s *service) GetCampaignByID(input GetCampaignDetailInput) (Campaign, error) {
 	campaign, err := s.repository.FindByID(input.ID)
-	if err != nil{
+	if err != nil {
 		return campaign, err
 	}
 
 	return campaign, nil
 }
 
-func (s *service) CreateCampiagn(input CreateCampaignInput)(Campaign, error){
+func (s *service) CreateCampiagn(input CreateCampaignInput) (Campaign, error) {
 	campaign := Campaign{}
 	campaign.Name = input.Name
 	campaign.ShortDescription = input.ShortDescription
@@ -65,17 +65,17 @@ func (s *service) CreateCampiagn(input CreateCampaignInput)(Campaign, error){
 
 	newCampaign, err := s.repository.Save(campaign)
 
-	if err != nil{
+	if err != nil {
 		return newCampaign, err
 	}
 
 	return newCampaign, nil
 }
 
-func (s *service)UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput)(Campaign, error){
+func (s *service) UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error) {
 	campaign, err := s.repository.FindByID(inputID.ID)
 
-	if err !=nil {
+	if err != nil {
 		return campaign, err
 	}
 
@@ -90,8 +90,32 @@ func (s *service)UpdateCampaign(inputID GetCampaignDetailInput, inputData Create
 	campaign.GoalAmount = inputData.GoalAmount
 
 	updateCampaign, err := s.repository.Update(campaign)
-	if err !=nil {
+	if err != nil {
 		return campaign, err
 	}
 	return updateCampaign, nil
+}
+
+func (s *service) SaveCampaignImage(input CreateCampaignImageInput, fileLocation string) (CampaignImage, error) {
+	isPrimary := 0
+	if input.isPrimary {
+		isPrimary = 1
+		_, err := s.repository.MarkAllImageAsNonPrimary(input.CampaignID)
+		if err != nil {
+			return CampaignImage{}, err
+		}
+	}
+
+	campaignImage := CampaignImage{}
+	campaignImage.CampaignID = input.CampaignID
+	campaignImage.FileName = fileLocation
+	campaignImage.IsPrimary = isPrimary
+
+	newCampaignImage, err := s.repository.CreteImage(campaignImage)
+	if err != nil {
+		return newCampaignImage, err
+	}
+
+	return newCampaignImage, nil
+
 }
