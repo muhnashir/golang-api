@@ -124,16 +124,19 @@ func (h *campaignHandler) UpdateCampign(c *gin.Context) {
 func (h *campaignHandler) UploadImage(c *gin.Context) {
 	var input campaign.CreateCampaignImageInput
 
-	err := c.ShouldBindJSON(&input)
+	err := c.ShouldBind(&input)
+
 	if err != nil {
 		errors := helper.FormatValidationError(err)
-
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIResponse("Upload File failed", http.StatusUnprocessableEntity, "error", errorMessage)
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+	userId := currentUser.ID
 	//ambil file
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -143,12 +146,20 @@ func (h *campaignHandler) UploadImage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	currentUser := c.MustGet("currentUser").(user.User)
-
-	userId := currentUser.ID
 
 	// path := "images/" + file.Filename
 	path := fmt.Sprintf("images/%d-%s", userId, file.Filename)
+	
+	//call service
+	_, err = h.service.SaveCampaignImage(input,path)
+	if err != nil{
+		fmt.Println("masuk error")
+		data := gin.H{"is_uploaded" : false,}
+			response := helper.APIResponse("Failed to upload campiagn image", http.StatusBadRequest, "error", data)
+			c.JSON(http.StatusBadRequest, response)
+			return	
+	}
+
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		data := gin.H{"is_uploaded": false}
@@ -156,16 +167,6 @@ func (h *campaignHandler) UploadImage(c *gin.Context) {
 
 		c.JSON(http.StatusBadRequest, response)
 		return
-	}
-
-
-	//call service
-	_, err = h.service.SaveCampaignImage(input,path)
-	if err != nil{
-		data := gin.H{"is_uploaded" : false,}
-			response := helper.APIResponse("Failed to upload campiagn image", http.StatusBadRequest, "error", data)
-			c.JSON(http.StatusBadRequest, response)
-			return	
 	}
 
 	data := gin.H{"is_uploaded" : true}
