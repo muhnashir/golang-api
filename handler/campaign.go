@@ -174,3 +174,4 @@ func (h *campaignHandler) UploadImage(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 	return	
 }
+
