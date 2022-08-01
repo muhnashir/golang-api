@@ -20,6 +20,7 @@ func NewService(repository Repository, campaignRepository campaign.Repository)*s
 type Service interface{
 	GetTransactionsByCampaignID(input GetCampaignTransactionInput)([]Transaction, error)
 	GetTransactionsByUserID(userID int)([]Transaction, error)
+	CreateTransaction(input CreateTransactionInput)(Transaction, error)
 }
 
 func(s *service) GetTransactionsByCampaignID(input GetCampaignTransactionInput)([]Transaction, error){
@@ -44,4 +45,19 @@ func (s *service) GetTransactionsByUserID(userID int)([]Transaction, error){
 		return transactions, err
 	}
 	return transactions, nil
+}
+
+func (s *service)CreateTransaction(input CreateTransactionInput)(Transaction, error){
+	transaction := Transaction{}
+	transaction.Amount = input.Amount
+	transaction.CampaignID = input.CampaignID
+	transaction.User.ID = input.User.ID
+	transaction.Status = "PENDING"
+
+	newTransaction, err := s.repository.SaveTransaction(transaction)
+	if err != nil {
+		return newTransaction, err
+	}
+	return newTransaction, nil
+
 }

@@ -33,12 +33,22 @@ func main() {
 	userService := user.NewService(userRepository)
 	authService :=auth.NewService()
 	campaignService :=campaign.NewService(campaignRepository)
-	TransactionService :=transaction.NewService(transactionRepository, campaignRepository)
+	transactionService :=transaction.NewService(transactionRepository, campaignRepository)
+	user, _ := userService.GetUserById(1)
+
+	input := transaction.CreateTransactionInput{
+		CampaignID: 6,
+		Amount: 2000,
+		User: user,
+	}
+
+	transactionService.CreateTransaction(input)
+
 	
 
 	userHandler := handler.NewUserHandler(userService,authService)
 	campaignHandler := handler.NewCampaignHandler(campaignService)
-	transactionHandler := handler.NewTransactionHandler(TransactionService)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	router := gin.Default()
 	router.Static("/images","./images")
@@ -56,7 +66,8 @@ func main() {
 
 	api.GET("campaigns/:id/transactions",authMiddleware(authService, userService),transactionHandler.GetCampaignTransactions )
 
-	api.GET("campaign/transactions",authMiddleware(authService, userService),transactionHandler.GetUserTransactions)	
+	api.GET("transactions",authMiddleware(authService, userService),transactionHandler.GetUserTransactions)	
+	api.POST("transactions",authMiddleware(authService, userService),transactionHandler.CreateTransaction)
 	router.Run()
 }
 
