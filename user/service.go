@@ -28,7 +28,7 @@ func (s *service) RegisterUser(input RegisterUserInput) (User, error) {
 	user.Name = input.Name
 	user.Email = input.Email
 	user.Occupation = input.Occupation
-
+	fmt.Println(user)
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 	if err != nil {
 		return user, err
@@ -65,7 +65,7 @@ func (s *service) Login(input LoginInput) (User, error) {
 	return user, nil
 }
 
-func (s *service)IsEmailAvailable(input CheckEmailInput) (bool, error){
+func (s *service) IsEmailAvailable(input CheckEmailInput) (bool, error) {
 	email := input.Email
 	user, err := s.repository.FindByEmail(email)
 	if err != nil {
@@ -78,7 +78,7 @@ func (s *service)IsEmailAvailable(input CheckEmailInput) (bool, error){
 	return false, nil
 }
 
-func (s *service) SaveAvatar(ID int, fileLocation string) (User, error){
+func (s *service) SaveAvatar(ID int, fileLocation string) (User, error) {
 	user, err := s.repository.FindById(ID)
 	if err != nil {
 		return user, err
@@ -93,9 +93,9 @@ func (s *service) SaveAvatar(ID int, fileLocation string) (User, error){
 	return updateUser, nil
 }
 
-func (s *service) GetUserById(ID int) (User, error){
+func (s *service) GetUserById(ID int) (User, error) {
 	user, err := s.repository.FindById(ID)
-	if err !=nil{
+	if err != nil {
 		return user, err
 	}
 
