@@ -84,8 +84,14 @@ func FormatCampaignDetail(campaign Campaign) CampaignDetailFormatter {
 	campaignDetailFormatter.ImageURL = ""
 
 	if len(campaign.CampaignImages) > 0 {
-		campaignDetailFormatter.ImageURL = campaign.CampaignImages[0].FileName
-	}
+			for _, imageCampaign := range campaign.CampaignImages {
+				if imageCampaign.IsPrimary ==1 {
+					campaignDetailFormatter.ImageURL = imageCampaign.FileName
+				}
+			}
+		}
+
+
 
 	var perks []string
 	for _, perk := range strings.Split(campaign.Perks, ",") {
