@@ -6,6 +6,7 @@ require (
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
+	github.com/gin-contrib/multitemplate v0.0.0-20220829131020-8c2a8441bc2b // indirect
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gosimple/slug v1.12.0
